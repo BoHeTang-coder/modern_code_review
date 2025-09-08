@@ -18,6 +18,16 @@ bool isWin(char game[3][3]) {
     return win;
 }
 
+// 显示当前棋盘（新增函数，便于复用）
+void showBoard(char game[3][3]) {
+    cout << "\n  1 2 3" << endl; // 列号提示
+    cout << "1 " << game[0][0] << "|" << game[0][1] << "|" << game[0][2] << endl;
+    cout << "  -+-+-" << endl;
+    cout << "2 " << game[1][0] << "|" << game[1][1] << "|" << game[1][2] << endl;
+    cout << "  -+-+-" << endl;
+    cout << "3 " << game[2][0] << "|" << game[2][1] << "|" << game[2][2] << endl;
+    cout << "  1 2 3" << endl; // 列号提示
+}
 
 int main() {
     int i, j;
@@ -27,6 +37,10 @@ int main() {
     // 2. 优化回合控制逻辑：turn=false=玩家1（X），turn=true=玩家2（O），玩家1先出
     bool turn = false; 
     bool gameOver = false;
+
+    cout << "=== 三子棋游戏 ===" << endl;
+    cout << "规则：玩家1（X）先手，玩家2（O）后手，先连成一线者获胜" << endl;
+    showBoard(game); // 显示初始空棋盘
 
     // 3. 修复循环逻辑：用while循环替代for，支持重复输入无效坐标（不消耗回合）
     int totalSteps = 0; // 统计总步数，最多9步（平局）
@@ -51,6 +65,12 @@ int main() {
             turn = !turn; // 回滚回合（未成功落子，不切换玩家）
             continue;
         }
+        // （3）检查该位置是否已被占用（原代码无此判断，可重复落子）
+        if (game[i][j] != ' ') {
+            cout << "错误：该位置已被占用！请重新输入" << endl;
+            turn = !turn; // 回滚回合
+            continue;
+        }
 
         // 5. 落子（合法输入才执行）
         if (turn == false) {
@@ -58,8 +78,11 @@ int main() {
         } else {
             game[i][j] = player2;
         }
-      
-     
+        totalSteps++; // 仅合法落子才计数
+
+        // 6. 修复棋盘显示时机：每次落子后立即显示当前棋盘（原代码仅结束后显示）
+        showBoard(game);
+
         // 7. 判断是否获胜
         if (isWin(game)) {
             if (turn == false) {
@@ -72,7 +95,7 @@ int main() {
     }
 
     // 8. 修复平局判断：总步数满9步且未分胜负（原代码用i==3判断逻辑错误）
-    if (totalSteps >= 9) {
+    if (totalSteps == 9 && !gameOver) {
         cout << "\n游戏结束，双方平局！" << endl;
     }
 
